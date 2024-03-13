@@ -1,11 +1,11 @@
 <?php
 session_start();
-if (isset($_SESSION["username"])) {
+if (isset($_SESSION["username"])) { // already logged in, redirect to homepage  
     header("Location: index.php");
     exit();
 }
 include 'config/dbconnect.php'
-    ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -42,22 +42,21 @@ include 'config/dbconnect.php'
                             }
 
                             $result = $stmt->get_result();
+                            $row = $result->fetch_assoc();
 
-                            if ($result->num_rows > 0) {
-                                while ($row = $result->fetch_assoc()) {
-                                    $hashedPassword = $row["Password"];
-                                    if (password_verify($password, $hashedPassword)) {
-                                        $_SESSION["username"] = $username;
-                                        header('Location: index.php');
-                                        exit();
-                                    } else {
-                                        echo "<span class='errorMsg'>Invalid login credentials.</span>";
-                                    }
+                            if ($row) {
+                                $hashedPassword = $row["Password"];
+                                if (password_verify($password, $hashedPassword)) {
+                                    $_SESSION["username"] = $username;
+                                    header('Location: index.php');
+                                    exit();
+                                } else {
+                                    echo "<span class='errorMsg'>Invalid login credentials.</span>";
                                 }
                             } else {
                                 echo "<span class='errorMsg'>User not found!</span>";
                             }
-
+                        
                             $stmt->close();
                             $conn->close();
                         }
@@ -68,7 +67,7 @@ include 'config/dbconnect.php'
                         <input type="password" name="password" id="pwd" placeholder="Password" required>
                         <input type="submit" value="Login">
                     </div>
-                    <p class="haveAcc">Don't have an account? <a href="signup.php">Signup here</a>.</p>
+                    <p class="haveAcc">Don't have an account? <a href="signup.php">SignUp here</a>.</p>
                 </div>
             </div>
         </form>

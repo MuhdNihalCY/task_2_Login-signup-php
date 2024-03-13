@@ -1,22 +1,19 @@
 <?php
 session_start();
-if (isset($_SESSION["username"])) {
+if (isset($_SESSION["username"])) { // already logged in, redirect to homepage
     header("Location: index.php");
     exit();
 }
-
 include 'config/dbconnect.php'
-    ?>
+?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task 2</title>
     <link rel="stylesheet" href="public/css/style.css">
 </head>
-
 <body>
     <main>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
@@ -73,5 +70,4 @@ include 'config/dbconnect.php'
         </form>
     </main>
 </body>
-
 </html>
