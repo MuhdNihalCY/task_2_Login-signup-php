@@ -1,3 +1,11 @@
+<?php
+session_start();
+if (isset($_SESSION["username"])) {
+    header("Location: index.php");
+    exit();
+}
+include 'config/dbconnect.php'
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,6 +23,45 @@
                 <div class="loginContainer">
                     <h3>Login</h3>
                     <div class="errorDiv">
+                        <?php
+                        if ($_SERVER['REQUEST_METHOD'] == "POST") {
+                            $username = mysqli_real_escape_string($conn, $_POST['username']);
+                            $password = mysqli_real_escape_string($conn, $_POST['password']);
+
+                            $sql = "SELECT * FROM Users WHERE Name = ?";
+                            $stmt = $conn->prepare($sql);
+
+                            if (!$stmt) {
+                                echo "<span class='errorMsg'>Error preparing statement: " . $conn->error . "</span>";
+                            }
+
+                            $stmt->bind_param("s", $username);
+
+                            if (!$stmt->execute()) {
+                                echo "<span class='errorMsg'>Error executing statement: " . $conn->error . "</span>";
+                            }
+
+                            $result = $stmt->get_result();
+
+                            if ($result->num_rows > 0) {
+                                while ($row = $result->fetch_assoc()) {
+                                    $hashedPassword = $row["Password"];
+                                    if (password_verify($password, $hashedPassword)) {
+                                        $_SESSION["username"] = $username;
+                                        header('Location: index.php');
+                                        exit();
+                                    } else {
+                                        echo "<span class='errorMsg'>Invalid login credentials.</span>";
+                                    }
+                                }
+                            } else {
+                                echo "<span class='errorMsg'>User not found!</span>";
+                            }
+
+                            $stmt->close();
+                            $conn->close();
+                        }
+                        ?>
                     </div>
                     <div class="loginInputContainer">
                         <input type="text" name="username" placeholder="User name" required>

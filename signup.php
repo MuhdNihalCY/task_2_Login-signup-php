@@ -1,3 +1,12 @@
+<?php
+session_start();
+if (isset($_SESSION["username"])) {
+    header("Location: index.php");
+    exit();
+}
+
+include 'config/dbconnect.php'
+    ?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,6 +24,43 @@
                 <div class="signupContainer">
                     <h3>Sign Up</h3>
                     <div class="errorDiv">
+                        <?php
+                        if ($_SERVER['REQUEST_METHOD'] == "POST") {
+                            $username = mysqli_real_escape_string($conn, $_POST['username']);
+                            $password = mysqli_real_escape_string($conn, $_POST['password']);
+                            $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+
+                            // Validate password
+                            if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,16}$/', $password)) {
+                                echo "<span class='errorMsg'>Password must be between 8 and 16 characters long and contain at least one uppercase letter, one lowercase letter, and one digit.</span>";
+                            } else {
+                                $stmt = $conn->prepare("SELECT Name FROM Users WHERE Name=?");
+                                $stmt->bind_param("s", $username);
+                                $stmt->execute();
+                                $result = $stmt->get_result();
+
+                                if ($result->num_rows > 0) {
+                                    // user name already exist
+                                    echo " <span class='errorMsg'>User name already exists.</span>";
+                                } else {
+                                    // user name doesn't exist. Insert new user to database
+                                    $stmt = $conn->prepare("INSERT INTO Users(Name, Password) VALUES (?, ?)");
+                                    $stmt->bind_param("ss", $username, $hashedPassword);
+                                    $stmt->execute();
+                                    if ($stmt->affected_rows > 0) {
+                                        echo "<span>New Record created succesfully</span>";
+                                        $_SESSION["username"] = $username;
+                                        header('location: index.php');
+                                        exit();
+                                    } else {
+                                        echo "<span class='errorMsg'>Database Error</span>";
+                                    }
+                                }
+                                $stmt->close();
+                                $conn->close();
+                            }
+                        }
+                        ?>
                     </div>
                     <div class="signupInputContainer">
                         <input type="text" name="username" placeholder="User name" required>
