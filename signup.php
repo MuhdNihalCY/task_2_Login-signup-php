@@ -41,7 +41,8 @@ include 'config/dbconnect.php'
                                     echo " <span class='errorMsg'>User name already exists.</span>";
                                 } else {
                                     // user name doesn't exist. Insert new user to database
-                                    $stmt = $conn->prepare("INSERT INTO Users(Name, Password) VALUES (?, ?)");
+                                    $sql = "INSERT INTO Users(Name, Password) VALUES (?, ?)";
+                                    $stmt = $conn->prepare($sql);
                                     $stmt->bind_param("ss", $username, $hashedPassword);
                                     $stmt->execute();
                                     if ($stmt->affected_rows > 0) {

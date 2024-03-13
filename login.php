@@ -8,14 +8,12 @@ include 'config/dbconnect.php'
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task 2</title>
     <link rel="stylesheet" href="public/css/style.css">
 </head>
-
 <body>
     <main>
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
@@ -30,17 +28,8 @@ include 'config/dbconnect.php'
 
                             $sql = "SELECT * FROM Users WHERE Name = ?";
                             $stmt = $conn->prepare($sql);
-
-                            if (!$stmt) {
-                                echo "<span class='errorMsg'>Error preparing statement: " . $conn->error . "</span>";
-                            }
-
                             $stmt->bind_param("s", $username);
-
-                            if (!$stmt->execute()) {
-                                echo "<span class='errorMsg'>Error executing statement: " . $conn->error . "</span>";
-                            }
-
+                            $stmt->execute();
                             $result = $stmt->get_result();
                             $row = $result->fetch_assoc();
 
@@ -56,7 +45,6 @@ include 'config/dbconnect.php'
                             } else {
                                 echo "<span class='errorMsg'>User not found!</span>";
                             }
-                        
                             $stmt->close();
                             $conn->close();
                         }
@@ -73,5 +61,4 @@ include 'config/dbconnect.php'
         </form>
     </main>
 </body>
-
 </html>
